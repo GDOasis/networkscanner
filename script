@@ -1,0 +1,36 @@
+# Define a list of known good IP addresses
+$knownGoodIPs = @(
+    
+)
+
+# Function to retrieve the external IP address
+Function Get-ExternalIPAddress {
+    try {
+        $ipInfo = Invoke-RestMethod -Uri "https://api64.ipify.org?format=json"
+        return $ipInfo.ip
+    }
+    catch {
+        Write-Host "Failed to retrieve external IP address: $_" -ForegroundColor Red
+        return $null
+    }
+}
+
+# Main script
+$externalIP = Get-ExternalIPAddress
+
+if ($null -eq $externalIP) {
+    Write-Host "Exiting script due to failure in retrieving external IP address." -ForegroundColor Red
+    exit
+}
+
+Write-Host "Current external IP address: $externalIP"
+
+if ($knownGoodIPs -notcontains $externalIP) {
+    Write-Host "Detected potentially abnormal IP address: $externalIP" -ForegroundColor Yellow
+    # Log the event, send alert, or take appropriate action
+    # For example:
+    # Add-Content -Path "abnormal_ips.log" -Value "Potentially abnormal IP address detected: $externalIP"
+}
+else {
+    Write-Host "No abnormal IP detected." -ForegroundColor Green
+}
